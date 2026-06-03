@@ -3,7 +3,7 @@
 #include <string.h>
 
 // =========================================================================
-// 1. DEFINIÇÃO DAS ESTRUTURAS (STRUCTS)
+// 1. DEFINICAO DAS ESTRUTURAS (STRUCTS)
 // =========================================================================
 
 typedef struct {
@@ -32,10 +32,10 @@ typedef struct {
 } MesRelatorio;
 
 // =========================================================================
-// 2. FUNÇÕES DE BUSCA E UTILIDADES
+// 2. FUNCOES DE BUSCA E UTILIDADES
 // =========================================================================
 
-// Função NOVA para limpar lixo do teclado e evitar loop infinito
+// Função para limpar lixo do teclado e evitar loop infinito
 void limpar_buffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
@@ -56,7 +56,7 @@ int buscarCliente(Cliente *clientes, int total_cadastrados, int id_buscado) {
 }
 
 // =========================================================================
-// 3. FUNÇÕES DE RELATÓRIO
+// 3. FUNCOES DE RELATORIO
 // =========================================================================
 
 void gerarRelatorioDiario(Venda vendas_dia[], int total_vendas, float faturamento_dia) {
@@ -65,7 +65,7 @@ void gerarRelatorioDiario(Venda vendas_dia[], int total_vendas, float faturament
         printf("Nenhuma venda realizada hoje.\n");
     } else {
         for (int i = 0; i < total_vendas; i++) {
-            printf("Pedido: %d | Produto ID: %d | Qtd: %d | Valor: R$ %.2f\n", 
+            printf("Pedido: %d | Produto ID: %d | Qtd: %d | Valor no Caixa: R$ %.2f\n", 
                    vendas_dia[i].id_venda, vendas_dia[i].id_produto, 
                    vendas_dia[i].quantidade_adquirida, vendas_dia[i].valor_total_item);
         }
@@ -101,6 +101,7 @@ void gerarRelatorioAnual(float faturamento_meses[]) {
         faturamento_total_ano += faturamento_meses[i];
     }
 
+    // Algoritmo de ordenacao Bubble Sort decrescente
     for (int i = 0; i < 11; i++) {
         for (int j = 0; j < 11 - i; j++) {
             if (relatorio[j].faturamento < relatorio[j + 1].faturamento) {
@@ -120,7 +121,7 @@ void gerarRelatorioAnual(float faturamento_meses[]) {
 }
 
 // =========================================================================
-// 4. FUNÇÃO PRINCIPAL (MAIN) E MENU
+// 4. FUNCAO PRINCIPAL (MAIN) E MENU
 // =========================================================================
 
 int main() {
@@ -159,8 +160,8 @@ int main() {
                 int idx = total_produtos - 1;
                 
                 estoque[idx].id_produto = id_temp;
-                printf("Titulo (sem espacos longos): ");
-                scanf("%s", estoque[idx].titulo);
+                printf("Titulo: ");
+                scanf(" %[^\n]", estoque[idx].titulo); 
                 printf("Preco (Ex: 25.50): ");
                 while (scanf("%f", &estoque[idx].preco) != 1) {
                     limpar_buffer();
@@ -181,12 +182,15 @@ int main() {
                 int idx = total_clientes - 1;
                 
                 clientes[idx].id_cliente = id_temp;
-                printf("Nome (sem espacos longos): ");
-                scanf("%s", clientes[idx].nome);
+                printf("Nome: ");
+                scanf(" %[^\n]", clientes[idx].nome); 
+                limpar_buffer(); 
+                
                 printf("Cliente cadastrado!\n");
                 break;
             }
             case 3: {
+                // A loja realiza 50 vendas por dia [cite: 46]
                 Venda vendas_diarias[50]; 
                 float faturamento_dia = 0.0;
                 int qtd_vendas = 0;
@@ -241,7 +245,8 @@ int main() {
                         printf("Quantidade invalida! Tente novamente: ");
                     }
 
-                    v.valor_total_item = estoque[idx_prod].preco * v.quantidade_adquirida;
+                    // Logica Financeira: Calculo do valor base
+                    float valor_base_produto = estoque[idx_prod].preco * v.quantidade_adquirida;
 
                     int num_devolucao = 0;
                     printf("Numero desta devolucao (0 se for venda normal): ");
@@ -250,9 +255,18 @@ int main() {
                         printf("Valor invalido! Tente novamente: ");
                     }
 
-                    if (num_devolucao == 2) {
-                        v.valor_total_item += 20.00;
-                        printf("Taxa de R$ 20,00 aplicada (2a devolucao).\n");
+                    // Regras de Negocio para Venda e Devolucao
+                    if (num_devolucao == 0) {
+                        v.valor_total_item = valor_base_produto;
+                        printf("-> Venda registrada: + R$ %.2f no caixa.\n", v.valor_total_item);
+                    } else if (num_devolucao == 1) {
+                        v.valor_total_item = -valor_base_produto;
+                        printf("-> Devolucao: R$ %.2f ressarcidos ao cliente.\n", valor_base_produto);
+                    } else {
+                        // Segunda devolucao em diante retem taxa fixa de R$ 20,00 
+                        v.valor_total_item = -valor_base_produto + 20.00;
+                        printf("-> Taxa de R$ 20,00 retida. Valor repassado ao cliente: R$ %.2f\n", valor_base_produto - 20.00);
+                        printf("-> Impacto final no caixa: R$ %.2f\n", v.valor_total_item);
                     }
 
                     vendas_diarias[i] = v;
