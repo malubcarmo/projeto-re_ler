@@ -1,11 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-// =========================================================================
-// 1. DEFINICAO DAS ESTRUTURAS (STRUCTS)
-// =========================================================================
-
 typedef struct {
     int id_cliente;
     char nome[100];
@@ -31,11 +26,6 @@ typedef struct {
     float faturamento;
 } MesRelatorio;
 
-// =========================================================================
-// 2. FUNCOES DE BUSCA E UTILIDADES
-// =========================================================================
-
-// Função para limpar lixo do teclado e evitar loop infinito
 void limpar_buffer() {
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
@@ -54,10 +44,6 @@ int buscarCliente(Cliente *clientes, int total_cadastrados, int id_buscado) {
     }
     return -1;
 }
-
-// =========================================================================
-// 3. FUNCOES DE RELATORIO
-// =========================================================================
 
 void gerarRelatorioDiario(Venda vendas_dia[], int total_vendas, float faturamento_dia) {
     printf("\n=== RELATORIO DIARIO ===\n");
@@ -101,7 +87,6 @@ void gerarRelatorioAnual(float faturamento_meses[]) {
         faturamento_total_ano += faturamento_meses[i];
     }
 
-    // Algoritmo de ordenacao Bubble Sort decrescente
     for (int i = 0; i < 11; i++) {
         for (int j = 0; j < 11 - i; j++) {
             if (relatorio[j].faturamento < relatorio[j + 1].faturamento) {
@@ -120,10 +105,6 @@ void gerarRelatorioAnual(float faturamento_meses[]) {
     printf("=====================================\n");
 }
 
-// =========================================================================
-// 4. FUNCAO PRINCIPAL (MAIN) E MENU
-// =========================================================================
-
 int main() {
     Produto *estoque = NULL;
     Cliente *clientes = NULL;
@@ -141,10 +122,9 @@ int main() {
         printf("0. Encerrar Sistema\n");
         printf("Escolha uma opcao: ");
         
-        // Proteção contra letras no menu
         if (scanf("%d", &opcao_menu) != 1) {
             limpar_buffer();
-            opcao_menu = -1; // Força cair no 'default' para mostrar erro
+            opcao_menu = -1;
         }
 
         switch (opcao_menu) {
@@ -190,7 +170,6 @@ int main() {
                 break;
             }
             case 3: {
-                // A loja realiza 50 vendas por dia [cite: 46]
                 Venda vendas_diarias[50]; 
                 float faturamento_dia = 0.0;
                 int qtd_vendas = 0;
@@ -245,7 +224,6 @@ int main() {
                         printf("Quantidade invalida! Tente novamente: ");
                     }
 
-                    // Logica Financeira: Calculo do valor base
                     float valor_base_produto = estoque[idx_prod].preco * v.quantidade_adquirida;
 
                     int num_devolucao = 0;
@@ -254,8 +232,6 @@ int main() {
                         limpar_buffer();
                         printf("Valor invalido! Tente novamente: ");
                     }
-
-                    // Regras de Negocio para Venda e Devolucao
                     if (num_devolucao == 0) {
                         v.valor_total_item = valor_base_produto;
                         printf("-> Venda registrada: + R$ %.2f no caixa.\n", v.valor_total_item);
@@ -263,7 +239,6 @@ int main() {
                         v.valor_total_item = -valor_base_produto;
                         printf("-> Devolucao: R$ %.2f ressarcidos ao cliente.\n", valor_base_produto);
                     } else {
-                        // Segunda devolucao em diante retem taxa fixa de R$ 20,00 
                         v.valor_total_item = -valor_base_produto + 20.00;
                         printf("-> Taxa de R$ 20,00 retida. Valor repassado ao cliente: R$ %.2f\n", valor_base_produto - 20.00);
                         printf("-> Impacto final no caixa: R$ %.2f\n", v.valor_total_item);
